@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import {
   occupations,
   tasksByOccupation,
@@ -280,6 +280,20 @@ function QuestionCard({
 // サブコンポーネント: スタート画面
 // ============================================================
 function StartScreen({ onStart }: { onStart: () => void }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = true;
+    const promise = video.play();
+    if (promise !== undefined) {
+      promise.catch(() => {
+        // 自動再生がブロックされた場合は無視
+      });
+    }
+  }, []);
+
   return (
     <div
       className="animate-fade-in"
@@ -362,11 +376,13 @@ function StartScreen({ onStart }: { onStart: () => void }) {
         }}
       >
         <video
+          ref={videoRef}
           src="/app-video.mp4"
           autoPlay
           muted
           loop
           playsInline
+          webkit-playsinline="true"
           style={{
             width: "100%",
             height: "auto",
