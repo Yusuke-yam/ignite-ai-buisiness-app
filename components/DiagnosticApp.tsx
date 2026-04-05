@@ -616,6 +616,7 @@ function ResultScreen({
             marginBottom: "20px",
             textAlign: "center",
           }}
+          className="result-description"
         >
           この診断はあくまでも簡易版です。<br />実際は認知科学に基づきあなただけの強みを発見し<br />最適なAIビジネスを作成し収益化まで伴走します。
         </p>

@@ -38,3 +38,10 @@ body {
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out forwards;
 }
+
+@media (max-width: 640px) {
+  .result-description {
+    font-size: 12px !important;
+    line-height: 1.9 !important;
+  }
+}
