@@ -617,7 +617,7 @@ function ResultScreen({
             textAlign: "center",
           }}
         >
-          この診断はあくまでも簡易版です。<br />実際は認知科学に基づき、あなただけの強みを発見し最適なAIビジネスを作成し収益化まで伴走します。
+          この診断はあくまでも簡易版です。<br />実際は認知科学に基づきあなただけの強みを発見し<br />最適なAIビジネスを作成し収益化まで伴走します。
         </p>
         <a
           href="https://docs.google.com/forms/d/e/1FAIpQLSfzB1LXepiwYLDDiseKQXdYk6N2PFBInZuYEHm6PB1Lf_Eu8Q/viewform?usp=header"
