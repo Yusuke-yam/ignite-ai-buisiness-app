@@ -426,7 +426,7 @@ function StartScreen({ onStart }: { onStart: () => void }) {
           flexDirection: "column",
           alignItems: "center",
           gap: "14px",
-          marginTop: "-132px",
+          marginTop: "-94px",
           width: "100%",
           position: "relative",
           zIndex: 1,
