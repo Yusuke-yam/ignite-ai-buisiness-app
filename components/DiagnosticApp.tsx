@@ -209,19 +209,11 @@ function QuestionCard({
   onSelect: (value: string) => void;
 }) {
   const [localSelected, setLocalSelected] = useState<string>("");
-  const [confirmed, setConfirmed] = useState(false);
 
-  const handleSelect = useCallback(
-    (value: string) => {
-      if (confirmed) return;
-      setLocalSelected(value);
-      setConfirmed(true);
-      setTimeout(() => {
-        onSelect(value);
-      }, 350);
-    },
-    [confirmed, onSelect]
-  );
+  const handleSelect = useCallback((value: string) => {
+    setLocalSelected(value);
+    onSelect(value);
+  }, [onSelect]);
 
   return (
     <div
@@ -267,7 +259,7 @@ function QuestionCard({
             key={opt}
             label={opt}
             selected={localSelected === opt}
-            disabled={confirmed && localSelected !== opt}
+            disabled={false}
             onClick={() => handleSelect(opt)}
           />
         ))}
@@ -723,27 +715,42 @@ export default function DiagnosticApp() {
     }
   }, [step]);
 
-  const handleAnswer = useCallback(
-    (field: keyof Answers, value: string) => {
-      const newAnswers = { ...answers, [field]: value };
-      setAnswers(newAnswers);
+  // 一時選択（確定前）
+  const [pending, setPending] = useState<string>("");
 
-      if (field === "desire") {
-        // Step4完了 → 診断結果を計算してStep5へ
-        const result = calculateResult({
-          occupation: newAnswers.occupation!,
-          task: newAnswers.task!,
-          action: newAnswers.action!,
-          desire: value,
-        });
-        setResultType(result);
-        setStep(5);
-      } else {
-        setStep((s) => (s + 1) as Step);
-      }
-    },
-    [answers]
-  );
+  // 選択肢タップ → pending更新のみ
+  const handleSelect = useCallback((value: string) => {
+    setPending(value);
+  }, []);
+
+  // 「次の設問に進む」確定処理
+  const handleNext = useCallback(() => {
+    if (!pending) return;
+    const fieldMap: Record<number, keyof Answers> = {
+      1: "occupation",
+      2: "task",
+      3: "action",
+      4: "desire",
+    };
+    const field = fieldMap[step];
+    if (!field) return;
+    const newAnswers = { ...answers, [field]: pending };
+    setAnswers(newAnswers);
+    setPending("");
+
+    if (field === "desire") {
+      const result = calculateResult({
+        occupation: newAnswers.occupation!,
+        task: newAnswers.task!,
+        action: newAnswers.action!,
+        desire: pending,
+      });
+      setResultType(result);
+      setStep(5);
+    } else {
+      setStep((s) => (s + 1) as Step);
+    }
+  }, [pending, step, answers]);
 
   // Step2: 現在の職業に応じたタスク一覧
   const currentTasks =
@@ -797,7 +804,7 @@ export default function DiagnosticApp() {
                 question="あなたの職業に最も近いものを選んでください"
                 options={occupations}
                 selectedValue={answers.occupation ?? ""}
-                onSelect={(v) => handleAnswer("occupation", v)}
+                onSelect={handleSelect}
               />
             )}
 
@@ -808,7 +815,7 @@ export default function DiagnosticApp() {
                 question="その仕事の中で特に夢中になれる業務はどれですか？"
                 options={currentTasks.map((t) => t.label)}
                 selectedValue={answers.task ?? ""}
-                onSelect={(v) => handleAnswer("task", v)}
+                onSelect={handleSelect}
               />
             )}
 
@@ -819,7 +826,7 @@ export default function DiagnosticApp() {
                 question="その業務の中でも特に夢中になってやっていることはなんですか？"
                 options={actions.map((a) => a.label)}
                 selectedValue={answers.action ?? ""}
-                onSelect={(v) => handleAnswer("action", v)}
+                onSelect={handleSelect}
               />
             )}
 
@@ -830,12 +837,18 @@ export default function DiagnosticApp() {
                 question="それをやることでどんな欲求を満たしたいですか？"
                 options={desires.map((d) => d.label)}
                 selectedValue={answers.desire ?? ""}
-                onSelect={(v) => handleAnswer("desire", v)}
+                onSelect={handleSelect}
               />
             )}
 
-            {/* 戻るボタン */}
-            <div style={{ textAlign: "center", marginTop: "24px" }}>
+            {/* ナビゲーションボタン */}
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginTop: "28px",
+              gap: "12px",
+            }}>
               <button
                 type="button"
                 onClick={handleBack}
@@ -848,9 +861,30 @@ export default function DiagnosticApp() {
                   textDecoration: "underline",
                   fontFamily: "inherit",
                   padding: "8px",
+                  flexShrink: 0,
                 }}
               >
                 一つ前に戻る
+              </button>
+              <button
+                type="button"
+                onClick={handleNext}
+                disabled={!pending}
+                style={{
+                  flex: 1,
+                  padding: "14px 20px",
+                  borderRadius: "12px",
+                  border: "none",
+                  backgroundColor: pending ? "#022769" : "#E5E7EB",
+                  color: pending ? "#FEE21C" : "#9CA3AF",
+                  fontSize: "14px",
+                  fontWeight: 700,
+                  cursor: pending ? "pointer" : "not-allowed",
+                  fontFamily: "inherit",
+                  transition: "background-color 0.2s ease, color 0.2s ease",
+                }}
+              >
+                次の設問に進む
               </button>
             </div>
           </>
