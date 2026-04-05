@@ -286,6 +286,9 @@ function StartScreen({ onStart }: { onStart: () => void }) {
     const video = videoRef.current;
     if (!video) return;
     video.muted = true;
+    video.setAttribute("playsinline", "");
+    video.setAttribute("webkit-playsinline", "");
+    video.load();
     const promise = video.play();
     if (promise !== undefined) {
       promise.catch(() => {
@@ -382,7 +385,7 @@ function StartScreen({ onStart }: { onStart: () => void }) {
           muted
           loop
           playsInline
-          webkit-playsinline="true"
+          preload="auto"
           style={{
             width: "100%",
             height: "auto",
