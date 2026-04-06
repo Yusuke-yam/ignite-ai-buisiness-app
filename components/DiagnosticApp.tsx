@@ -737,6 +737,7 @@ export default function DiagnosticApp() {
     const newAnswers = { ...answers, [field]: pending };
     setAnswers(newAnswers);
     setPending("");
+    window.scrollTo({ top: 0, behavior: "instant" });
 
     if (field === "desire") {
       const result = calculateResult({
