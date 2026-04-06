@@ -43,7 +43,6 @@ const TOTAL_QUESTIONS = 4; // Step1〜Step4
 // ============================================================
 function ProgressBar({ step }: { step: Step }) {
   if (step === 0 || step === 5) return null;
-  const progress = ((step - 1) / TOTAL_QUESTIONS) * 100;
   const filled = (step / TOTAL_QUESTIONS) * 100;
 
   return (
@@ -198,14 +197,12 @@ function QuestionCard({
   question,
   subQuestion,
   options,
-  selectedValue,
   onSelect,
 }: {
   step: Step;
   question: string;
   subQuestion?: string;
   options: string[];
-  selectedValue: string;
   onSelect: (value: string) => void;
 }) {
   const [localSelected, setLocalSelected] = useState<string>("");
@@ -804,7 +801,7 @@ export default function DiagnosticApp() {
                 step={1}
                 question="あなたの職業に最も近いものを選んでください"
                 options={occupations}
-                selectedValue={answers.occupation ?? ""}
+
                 onSelect={handleSelect}
               />
             )}
@@ -815,7 +812,6 @@ export default function DiagnosticApp() {
                 step={2}
                 question="その仕事の中で特に夢中になれる業務はどれですか？"
                 options={currentTasks.map((t) => t.label)}
-                selectedValue={answers.task ?? ""}
                 onSelect={handleSelect}
               />
             )}
@@ -826,7 +822,6 @@ export default function DiagnosticApp() {
                 step={3}
                 question="その業務の中でも特に夢中になってやっていることはなんですか？"
                 options={actions.map((a) => a.label)}
-                selectedValue={answers.action ?? ""}
                 onSelect={handleSelect}
               />
             )}
@@ -837,7 +832,6 @@ export default function DiagnosticApp() {
                 step={4}
                 question="それをやることでどんな欲求を満たしたいですか？"
                 options={desires.map((d) => d.label)}
-                selectedValue={answers.desire ?? ""}
                 onSelect={handleSelect}
               />
             )}
