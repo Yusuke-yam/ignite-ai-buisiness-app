@@ -284,10 +284,11 @@ function StartScreen({ onStart }: { onStart: () => void }) {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "space-between",
-        padding: "0",
+        justifyContent: "flex-start",
+        padding: "0 0 48px",
         textAlign: "center",
-        height: "100svh",
+        gap: "40px",
+        minHeight: "100vh",
         width: "100%",
         background:
           "linear-gradient(160deg, #F8F6F0 0%, #EEE8D5 30%, #F0F4FA 65%, #E8EEF8 100%)",
@@ -359,8 +360,6 @@ function StartScreen({ onStart }: { onStart: () => void }) {
           position: "relative",
           zIndex: 1,
           alignSelf: "stretch",
-          flexShrink: 1,
-          minHeight: 0,
         }}
       >
         <video
@@ -372,8 +371,7 @@ function StartScreen({ onStart }: { onStart: () => void }) {
           preload="metadata"
           style={{
             width: "100%",
-            height: "100%",
-            objectFit: "cover",
+            height: "auto",
             display: "block",
           }}
         >
@@ -381,18 +379,15 @@ function StartScreen({ onStart }: { onStart: () => void }) {
         </video>
       </div>
 
-      {/* ロゴ＋CTA（下部ブロック） */}
+      {/* ロゴ */}
       <div
         style={{
           display: "flex",
-          flexDirection: "column",
           alignItems: "center",
-          gap: "0px",
-          width: "100%",
+          justifyContent: "center",
           position: "relative",
           zIndex: 1,
-          flexShrink: 0,
-          padding: "0 24px 36px",
+          marginTop: "calc(-94px + 2cm)",
         }}
       >
         <Image
@@ -401,84 +396,84 @@ function StartScreen({ onStart }: { onStart: () => void }) {
           width={396}
           height={220}
           style={{
-            width: "min(320px, 80%)",
+            width: "600px",
             height: "auto",
             objectFit: "contain",
-            marginBottom: "8px",
           }}
           priority
         />
+      </div>
 
-        {/* CTAボタン */}
-        <div
+      {/* CTAボタン */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "14px",
+          marginTop: "calc(-94px + 1cm)",
+          width: "100%",
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
+        <button
+          type="button"
+          onClick={onStart}
           style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "14px",
             width: "100%",
+            maxWidth: "400px",
+            padding: "18px 24px",
+            borderRadius: "14px",
+            border: "2px solid #E7A200",
+            backgroundColor: "#022769",
+            color: "#FEE21C",
+            fontSize: "15px",
+            fontWeight: 700,
+            cursor: "pointer",
+            lineHeight: 1.5,
+            transition: "transform 0.15s ease, box-shadow 0.15s ease",
+            boxShadow: "0 4px 18px rgba(2, 39, 105, 0.35)",
+            fontFamily: "inherit",
             position: "relative",
-            zIndex: 1,
+            zIndex: 2,
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.transform =
+              "translateY(-2px)";
+            (e.currentTarget as HTMLButtonElement).style.boxShadow =
+              "0 8px 24px rgba(2, 39, 105, 0.45)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.transform =
+              "translateY(0)";
+            (e.currentTarget as HTMLButtonElement).style.boxShadow =
+              "0 4px 18px rgba(2, 39, 105, 0.35)";
+          }}
+          onMouseDown={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.transform =
+              "translateY(0) scale(0.98)";
+          }}
+          onMouseUp={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.transform =
+              "translateY(-2px)";
           }}
         >
-          <button
-            type="button"
-            onClick={onStart}
-            style={{
-              width: "100%",
-              maxWidth: "400px",
-              padding: "18px 24px",
-              borderRadius: "14px",
-              border: "2px solid #E7A200",
-              backgroundColor: "#022769",
-              color: "#FEE21C",
-              fontSize: "15px",
-              fontWeight: 700,
-              cursor: "pointer",
-              lineHeight: 1.5,
-              transition: "transform 0.15s ease, box-shadow 0.15s ease",
-              boxShadow: "0 4px 18px rgba(2, 39, 105, 0.35)",
-              fontFamily: "inherit",
-              position: "relative",
-              zIndex: 2,
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.transform =
-                "translateY(-2px)";
-              (e.currentTarget as HTMLButtonElement).style.boxShadow =
-                "0 8px 24px rgba(2, 39, 105, 0.45)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.transform =
-                "translateY(0)";
-              (e.currentTarget as HTMLButtonElement).style.boxShadow =
-                "0 4px 18px rgba(2, 39, 105, 0.35)";
-            }}
-            onMouseDown={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.transform =
-                "translateY(0) scale(0.98)";
-            }}
-            onMouseUp={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.transform =
-                "translateY(-2px)";
-            }}
-          >
-            あなたにマッチしたAI活用ビジネスを
-            <br />
-            簡易診断してみる(所要時間1分)
-          </button>
-          <p
-            style={{
-              fontSize: "13px",
-              color: "#022769",
-              opacity: 0.65,
-              fontWeight: 500,
-              letterSpacing: "0.03em",
-            }}
-          >
-            今すぐ、あなたの可能性を見つけよう
-          </p>
-        </div>
+          あなたにマッチしたAI活用ビジネスを
+          <br />
+          簡易診断してみる(所要時間1分)
+        </button>
+        <p
+          style={{
+            fontSize: "13px",
+            color: "#022769",
+            opacity: 0.65,
+            fontWeight: 500,
+            letterSpacing: "0.03em",
+          }}
+        >
+          今すぐ、あなたの可能性を見つけよう
+        </p>
       </div>
     </div>
   );
