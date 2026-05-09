@@ -1,11 +1,10 @@
 import type { SelfFunctionType } from "@/data/diagnosticData";
-import { tasksByOccupation, actions, desires } from "@/data/diagnosticData";
+import { tasksByOccupation, actions } from "@/data/diagnosticData";
 
 export interface DiagnosticAnswers {
   occupation: string;
   task: string;
   action: string;
-  desire: string;
 }
 
 /**
@@ -13,22 +12,31 @@ export interface DiagnosticAnswers {
  *
  * スコアリング:
  *   Step2 業務選択: +1点
- *   Step3 動作選択: +2点
- *   Step4 欲求選択: +3点
+ *   Step3 動作選択: +3点
  *
- * 同点の場合: Step4 → Step3 の順で優先
+ * Step3が常に結果を決定する（+3 > +1のため）
  */
 export function calculateResult(answers: DiagnosticAnswers): SelfFunctionType {
   const scores: Record<SelfFunctionType, number> = {
-    structure: 0,
-    bottleneck: 0,
-    solution: 0,
-    optimizer: 0,
-    gapfill: 0,
-    coach: 0,
-    harmonizer: 0,
-    creator: 0,
-    insight: 0,
+    info_structure: 0,
+    space_organization: 0,
+    process_efficiency: 0,
+    bottleneck_solving: 0,
+    strategy_design: 0,
+    essence_analysis: 0,
+    idea_realization: 0,
+    unique_expression: 0,
+    complex_verbalization: 0,
+    visual_communication: 0,
+    truth_extraction: 0,
+    strength_discovery: 0,
+    new_perspective: 0,
+    action_promotion: 0,
+    team_alignment: 0,
+    energy_elevation: 0,
+    right_placement: 0,
+    intent_alignment: 0,
+    joy_creation: 0,
   };
 
   // Step2: 業務 +1点
@@ -38,35 +46,21 @@ export function calculateResult(answers: DiagnosticAnswers): SelfFunctionType {
     scores[selectedTask.type] += 1;
   }
 
-  // Step3: 動作 +2点
+  // Step3: 動作 +3点
   const selectedAction = actions.find((a) => a.label === answers.action);
   if (selectedAction) {
-    scores[selectedAction.type] += 2;
+    scores[selectedAction.type] += 3;
   }
 
-  // Step4: 欲求 +3点
-  const selectedDesire = desires.find((d) => d.label === answers.desire);
-  if (selectedDesire) {
-    scores[selectedDesire.type] += 3;
-  }
-
-  // 最高スコアを特定
   const maxScore = Math.max(...Object.values(scores));
 
-  // 同点の場合: Step4 → Step3 の順で優先
-  const step4Type = selectedDesire?.type;
-  const step3Type = selectedAction?.type;
-
-  if (step4Type && scores[step4Type] === maxScore) {
-    return step4Type;
-  }
-  if (step3Type && scores[step3Type] === maxScore) {
-    return step3Type;
+  // 同点時はStep3優先
+  if (selectedAction && scores[selectedAction.type] === maxScore) {
+    return selectedAction.type;
   }
 
-  // それでも同点の場合は最初に見つかったもの
   const winner = (Object.keys(scores) as SelfFunctionType[]).find(
-    (k) => scores[k] === maxScore
+    (k) => scores[k] === maxScore,
   );
-  return winner ?? "structure";
+  return winner ?? "info_structure";
 }

@@ -6,7 +6,6 @@ import {
   occupations,
   tasksByOccupation,
   actions,
-  desires,
   typeResults,
 } from "@/data/diagnosticData";
 import { calculateResult } from "@/lib/diagnosticLogic";
@@ -15,13 +14,12 @@ import type { SelfFunctionType } from "@/data/diagnosticData";
 // ============================================================
 // 型定義
 // ============================================================
-type Step = 0 | 1 | 2 | 3 | 4 | 5;
+type Step = 0 | 1 | 2 | 3 | 4;
 
 interface Answers {
   occupation: string;
   task: string;
   action: string;
-  desire: string;
 }
 
 // ============================================================
@@ -36,13 +34,13 @@ const COLORS = {
   cta: "#10B981",
 };
 
-const TOTAL_QUESTIONS = 4; // Step1〜Step4
+const TOTAL_QUESTIONS = 3; // Step1〜Step3
 
 // ============================================================
 // サブコンポーネント: 進捗バー
 // ============================================================
 function ProgressBar({ step }: { step: Step }) {
-  if (step === 0 || step === 5) return null;
+  if (step === 0 || step === 4) return null;
   const filled = (step / TOTAL_QUESTIONS) * 100;
 
   return (
@@ -156,9 +154,7 @@ function OptionButton({
           width: "20px",
           height: "20px",
           borderRadius: "50%",
-          border: selected
-            ? `2px solid ${COLORS.accent}`
-            : "2px solid #D1D5DB",
+          border: selected ? `2px solid ${COLORS.accent}` : "2px solid #D1D5DB",
           backgroundColor: selected ? COLORS.accent : "transparent",
           display: "flex",
           alignItems: "center",
@@ -168,12 +164,7 @@ function OptionButton({
         }}
       >
         {selected && (
-          <svg
-            width="10"
-            height="8"
-            viewBox="0 0 10 8"
-            fill="none"
-          >
+          <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
             <path
               d="M1 4L3.5 6.5L9 1"
               stroke="white"
@@ -207,16 +198,16 @@ function QuestionCard({
 }) {
   const [localSelected, setLocalSelected] = useState<string>("");
 
-  const handleSelect = useCallback((value: string) => {
-    setLocalSelected(value);
-    onSelect(value);
-  }, [onSelect]);
+  const handleSelect = useCallback(
+    (value: string) => {
+      setLocalSelected(value);
+      onSelect(value);
+    },
+    [onSelect],
+  );
 
   return (
-    <div
-      className="animate-fade-in-up"
-      style={{ width: "100%" }}
-    >
+    <div className="animate-fade-in-up" style={{ width: "100%" }}>
       {/* 質問文 */}
       <div style={{ marginBottom: "24px" }}>
         <p
@@ -314,7 +305,8 @@ function StartScreen({ onStart }: { onStart: () => void }) {
           width: "260px",
           height: "260px",
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(2,39,105,0.08) 0%, transparent 70%)",
+          background:
+            "radial-gradient(circle, rgba(2,39,105,0.08) 0%, transparent 70%)",
           pointerEvents: "none",
         }}
       />
@@ -327,7 +319,8 @@ function StartScreen({ onStart }: { onStart: () => void }) {
           width: "220px",
           height: "220px",
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(231,162,0,0.10) 0%, transparent 70%)",
+          background:
+            "radial-gradient(circle, rgba(231,162,0,0.10) 0%, transparent 70%)",
           pointerEvents: "none",
         }}
       />
@@ -339,7 +332,8 @@ function StartScreen({ onStart }: { onStart: () => void }) {
           left: 0,
           right: 0,
           height: "3px",
-          background: "linear-gradient(90deg, transparent, #E7A200, #FEE21C, #E7A200, transparent)",
+          background:
+            "linear-gradient(90deg, transparent, #E7A200, #FEE21C, #E7A200, transparent)",
           opacity: 0.6,
           pointerEvents: "none",
         }}
@@ -352,7 +346,8 @@ function StartScreen({ onStart }: { onStart: () => void }) {
           left: 0,
           right: 0,
           height: "3px",
-          background: "linear-gradient(90deg, transparent, #022769, transparent)",
+          background:
+            "linear-gradient(90deg, transparent, #022769, transparent)",
           opacity: 0.4,
           pointerEvents: "none",
         }}
@@ -369,18 +364,19 @@ function StartScreen({ onStart }: { onStart: () => void }) {
       >
         <video
           ref={videoRef}
-          src="/app-video.mp4"
           autoPlay
           muted
           loop
           playsInline
-          preload="auto"
+          preload="metadata"
           style={{
             width: "100%",
             height: "auto",
             display: "block",
           }}
-        />
+        >
+          <source src="/app-video-mobile.mp4" type="video/mp4" />
+        </video>
       </div>
 
       {/* ロゴ */}
@@ -395,7 +391,7 @@ function StartScreen({ onStart }: { onStart: () => void }) {
         }}
       >
         <Image
-          src="/logo.png"
+          src="/logo-with-title.png"
           alt="サービスロゴ"
           width={396}
           height={220}
@@ -463,7 +459,9 @@ function StartScreen({ onStart }: { onStart: () => void }) {
               "translateY(-2px)";
           }}
         >
-          簡易AIビジネス適性診断を開始(所要時間3分)
+          あなたにマッチしたAI活用ビジネスを
+          <br />
+          簡易診断してみる(所要時間1分)
         </button>
         <p
           style={{
@@ -493,61 +491,96 @@ function ResultScreen({
 }) {
   const result = typeResults[resultType];
 
-  // ランダムなAI副業を1つ選ぶ（マウント時に固定）
-  const [selectedJob] = useState(
-    () => result.aiJobs[Math.floor(Math.random() * result.aiJobs.length)]
+  // ランダムにケース1件を選ぶ（マウント時に固定）
+  const [selectedCase] = useState(
+    () => result.cases[Math.floor(Math.random() * 2)],
   );
 
   return (
     <div className="animate-fade-in-up" style={{ width: "100%" }}>
       {/* 結果ヘッダー */}
       <div
-        style={{
-          textAlign: "center",
-          marginBottom: "28px",
-        }}
+        style={{ textAlign: "center", marginBottom: "28px", marginTop: "-2cm" }}
       >
         <p
           style={{
-            fontSize: "12px",
-            fontWeight: 600,
-            color: COLORS.accent,
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            marginBottom: "12px",
-          }}
-        >
-          Your Result
-        </p>
-        <p
-          style={{
             fontSize: "14px",
-            color: COLORS.sub,
-            marginBottom: "12px",
+            color: COLORS.text,
+            marginBottom: "8px",
             lineHeight: 1.6,
           }}
         >
-          あなたは...
+          あなたの強みは
         </p>
         <h2
           style={{
-            fontSize: "17px",
-            fontWeight: 700,
-            color: COLORS.text,
-            lineHeight: 1.6,
+            fontSize: "26px",
+            fontWeight: 800,
+            color: "#E7A200",
+            lineHeight: 1.4,
+            marginBottom: "12px",
           }}
         >
-          {result.name}
+          <span
+            style={{ textDecoration: "underline", textUnderlineOffset: "4px" }}
+          >
+            {result.name}
+          </span>
+          です
         </h2>
+        <p
+          style={{
+            fontSize: "15px",
+            fontWeight: 700,
+            color: "#E7A200",
+            lineHeight: 1.7,
+          }}
+        >
+          {result.description}ことが得意です
+        </p>
       </div>
 
-      {/* AI副業カード */}
+      {/* カード1: AI活用案件 */}
       <div
         style={{
-          background: "linear-gradient(135deg, #EFF6FF 0%, #F0FDF4 100%)",
-          border: `1px solid #BFDBFE`,
+          backgroundColor: "#FFFDE7",
           borderRadius: "16px",
-          padding: "24px",
+          padding: "20px",
+          marginBottom: "16px",
+          textAlign: "center",
+        }}
+      >
+        <p
+          style={{
+            fontSize: "12px",
+            fontWeight: 700,
+            color: "#022769",
+            lineHeight: 1.6,
+            marginBottom: "12px",
+            textDecoration: "underline",
+            textUnderlineOffset: "3px",
+          }}
+        >
+          あなたの強みでAIを活用すれば、このような案件で収益化が見込めます（一例）
+        </p>
+        <p
+          style={{
+            fontSize: "18px",
+            fontWeight: 800,
+            color: COLORS.text,
+            lineHeight: 1.5,
+          }}
+        >
+          {selectedCase.job}
+        </p>
+      </div>
+
+      {/* カード2: AIツール */}
+      <div
+        style={{
+          backgroundColor: "#FFFDE7",
+          borderRadius: "16px",
+          padding: "20px",
           marginBottom: "20px",
           textAlign: "center",
         }}
@@ -555,60 +588,49 @@ function ResultScreen({
         <p
           style={{
             fontSize: "12px",
-            fontWeight: 600,
-            color: COLORS.accent,
-            letterSpacing: "0.06em",
-            marginBottom: "10px",
+            fontWeight: 700,
+            color: "#022769",
+            lineHeight: 1.6,
+            marginBottom: "12px",
+            textDecoration: "underline",
+            textUnderlineOffset: "3px",
           }}
         >
-          あなたにマッチしそうなAI活用
+          あなたの強みに最適なAIツールはこちらです（一例）
         </p>
         <p
           style={{
-            fontSize: "24px",
+            fontSize: "18px",
             fontWeight: 800,
             color: COLORS.text,
-            letterSpacing: "-0.01em",
-            marginBottom: "10px",
+            lineHeight: 1.5,
           }}
         >
-          {selectedJob.title}
-        </p>
-        <p
-          style={{
-            fontSize: "14px",
-            color: COLORS.sub,
-            lineHeight: 1.7,
-            marginBottom: "16px",
-          }}
-        >
-          {selectedJob.detail}
+          {selectedCase.tool}
         </p>
       </div>
 
-      {/* CTA */}
-      <div
-        style={{
-          background: "#F9FAFB",
-          border: "1px solid #E5E7EB",
-          borderRadius: "16px",
-          padding: "24px",
-          marginBottom: "20px",
-        }}
-      >
+      {/* 免責テキスト〜CTA〜もう一度 */}
+      <div style={{ marginTop: "1cm" }}>
+        {/* 免責テキスト */}
         <p
           style={{
-            fontSize: "14px",
-            fontWeight: 700,
-            color: "#1E3A5F",
-            lineHeight: 1.9,
+            fontSize: "13.5px",
+            color: COLORS.text,
+            lineHeight: 1.8,
             marginBottom: "20px",
             textAlign: "center",
           }}
           className="result-description"
         >
-          この診断はあくまでも簡易版です。<br />実際は認知科学に基づきあなただけの強みを発見し<br />最適なAIビジネスを作成し収益化まで伴走します。
+          この診断はあくまでも簡易的なものです。
+          <br />
+          本来は認知科学の理論に基づいて、あなただけの強みを発見し
+          <br />
+          あなたにマッチしたAIビジネスを設計し収益化するまで徹底的に伴走します。
         </p>
+
+        {/* CTAボタン */}
         <a
           href="https://docs.google.com/forms/d/e/1FAIpQLSfzB1LXepiwYLDDiseKQXdYk6N2PFBInZuYEHm6PB1Lf_Eu8Q/viewform?usp=header"
           target="_blank"
@@ -616,19 +638,17 @@ function ResultScreen({
           style={{
             display: "block",
             width: "100%",
-            maxWidth: "400px",
-            margin: "0 auto",
             padding: "16px 12px",
             borderRadius: "14px",
             backgroundColor: "#022769",
-            fontSize: "13px",
+            fontSize: "14px",
             fontWeight: 700,
             textAlign: "center",
             textDecoration: "none",
-            whiteSpace: "nowrap",
             boxShadow: "0 4px 14px rgba(2, 39, 105, 0.4)",
             transition: "transform 0.15s ease, box-shadow 0.15s ease",
             fontFamily: "inherit",
+            marginBottom: "20px",
           }}
           onMouseEnter={(e) => {
             (e.currentTarget as HTMLAnchorElement).style.transform =
@@ -654,25 +674,25 @@ function ResultScreen({
             無料相談でもっと詳しく話を聞いてみる
           </span>
         </a>
-      </div>
 
-      {/* もう一度 */}
-      <div style={{ textAlign: "center" }}>
-        <button
-          onClick={onRetry}
-          style={{
-            background: "none",
-            border: "none",
-            color: COLORS.sub,
-            fontSize: "13px",
-            cursor: "pointer",
-            textDecoration: "underline",
-            fontFamily: "inherit",
-            padding: "8px",
-          }}
-        >
-          もう一度診断する
-        </button>
+        {/* もう一度 */}
+        <div style={{ textAlign: "center" }}>
+          <button
+            onClick={onRetry}
+            style={{
+              background: "none",
+              border: "none",
+              color: COLORS.sub,
+              fontSize: "13px",
+              cursor: "pointer",
+              textDecoration: "underline",
+              fontFamily: "inherit",
+              padding: "8px",
+            }}
+          >
+            もう一度診断をする
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -701,14 +721,19 @@ export default function DiagnosticApp() {
       setAnswers({});
       setStep(0);
     } else if (step === 2) {
-      setAnswers((a) => { const n = { ...a }; delete n.task; return n; });
+      setAnswers((a) => {
+        const n = { ...a };
+        delete n.task;
+        return n;
+      });
       setStep(1);
     } else if (step === 3) {
-      setAnswers((a) => { const n = { ...a }; delete n.action; return n; });
+      setAnswers((a) => {
+        const n = { ...a };
+        delete n.action;
+        return n;
+      });
       setStep(2);
-    } else if (step === 4) {
-      setAnswers((a) => { const n = { ...a }; delete n.desire; return n; });
-      setStep(3);
     }
   }, [step]);
 
@@ -727,7 +752,6 @@ export default function DiagnosticApp() {
       1: "occupation",
       2: "task",
       3: "action",
-      4: "desire",
     };
     const field = fieldMap[step];
     if (!field) return;
@@ -736,23 +760,23 @@ export default function DiagnosticApp() {
     setPending("");
     window.scrollTo({ top: 0, behavior: "instant" });
 
-    if (field === "desire") {
+    if (field === "action") {
       const result = calculateResult({
         occupation: newAnswers.occupation!,
         task: newAnswers.task!,
-        action: newAnswers.action!,
-        desire: pending,
+        action: pending,
       });
       setResultType(result);
-      setStep(5);
+      setStep(4);
     } else {
       setStep((s) => (s + 1) as Step);
     }
   }, [pending, step, answers]);
 
   // Step2: 現在の職業に応じたタスク一覧
-  const currentTasks =
-    answers.occupation ? tasksByOccupation[answers.occupation] ?? [] : [];
+  const currentTasks = answers.occupation
+    ? (tasksByOccupation[answers.occupation] ?? [])
+    : [];
 
   return (
     <div
@@ -775,23 +799,22 @@ export default function DiagnosticApp() {
           backgroundColor: step === 0 ? "transparent" : COLORS.card,
           borderRadius: 0,
           padding:
-            step === 0
-              ? "0"
-              : step === 5
-              ? "32px 24px 40px"
-              : "32px 24px",
+            step === 0 ? "0" : step === 4 ? "32px 24px 40px" : "32px 24px",
           boxShadow:
             step === 0
               ? "none"
               : "0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)",
           minHeight: "100vh",
+          display: step === 4 ? "flex" : undefined,
+          flexDirection: step === 4 ? "column" : undefined,
+          justifyContent: step === 4 ? "center" : undefined,
         }}
       >
         {/* Step 0: スタート */}
         {step === 0 && <StartScreen onStart={handleStart} />}
 
-        {/* Step 1〜4: 質問 */}
-        {step >= 1 && step <= 4 && (
+        {/* Step 1〜3: 質問 */}
+        {step >= 1 && step <= 3 && (
           <>
             <ProgressBar step={step} />
 
@@ -801,7 +824,6 @@ export default function DiagnosticApp() {
                 step={1}
                 question="あなたの職業に最も近いものを選んでください"
                 options={occupations}
-
                 onSelect={handleSelect}
               />
             )}
@@ -810,7 +832,7 @@ export default function DiagnosticApp() {
               <QuestionCard
                 key={2}
                 step={2}
-                question="その仕事の中で特に夢中になれる業務はどれですか？"
+                question="特に夢中になって取り組めている業務はどれですか？"
                 options={currentTasks.map((t) => t.label)}
                 onSelect={handleSelect}
               />
@@ -820,30 +842,22 @@ export default function DiagnosticApp() {
               <QuestionCard
                 key={3}
                 step={3}
-                question="その業務の中でも特に夢中になってやっていることはなんですか？"
+                question="その業務のどのような作業が特にあなたを夢中にさせますか？"
                 options={actions.map((a) => a.label)}
                 onSelect={handleSelect}
               />
             )}
 
-            {step === 4 && (
-              <QuestionCard
-                key={4}
-                step={4}
-                question="それをやることでどんな欲求を満たしたいですか？"
-                options={desires.map((d) => d.label)}
-                onSelect={handleSelect}
-              />
-            )}
-
             {/* ナビゲーションボタン */}
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginTop: "28px",
-              gap: "12px",
-            }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginTop: "28px",
+                gap: "12px",
+              }}
+            >
               <button
                 type="button"
                 onClick={handleBack}
@@ -885,8 +899,8 @@ export default function DiagnosticApp() {
           </>
         )}
 
-        {/* Step 5: 結果 */}
-        {step === 5 && resultType && (
+        {/* Step 4: 結果 */}
+        {step === 4 && resultType && (
           <ResultScreen resultType={resultType} onRetry={handleRetry} />
         )}
       </div>
